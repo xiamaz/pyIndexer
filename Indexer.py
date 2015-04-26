@@ -24,7 +24,7 @@ class FileQuery:
     def fileList(self, data):
         filteredData = self.crawl(data)
         print(filteredData)
-        result = map(lambda x: self.exp.sub("",d), filteredData)
+        result = map(lambda x: self.exp.sub("",x), filteredData)
         return result
 
 class FileChanger:
@@ -33,10 +33,14 @@ class FileChanger:
         self.target = FileQuery(target)
 
     def changeList(self, data):
-        origList = self.orig.fileList(data)
-        newList = self.target.fileList(data)
-        result = filter(set(origList.__contains__, newList))
+        origlist = self.orig.fileList(data)
+        newlist = self.target.fileList(data)
+        result = set(origlist).difference(newlist)
         return result
+
+    def linkFiles(self, fileiter):
+        pass
+        # create windows symbolic links save for later when ready for windows
 
 def main():
     crawler = FileCrawler(os.getcwd()+"/Testfiles")
@@ -45,6 +49,12 @@ def main():
     print("Results")
     for s in search.fileList(filelist):
         print(s)
+
+    print("FileChanger Results")
+    changer = FileChanger('\.test$', '\.new$')
+    for s in changer.changeList(filelist):
+        print(s)
+
 
 if __name__ == "__main__":
     main()
