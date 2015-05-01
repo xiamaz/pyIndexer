@@ -6,6 +6,9 @@ class FileCrawler:
     def __init__(self, home):
         self.home = home
 
+    def changePath(self, newpath):
+        self.home = newpath
+
     def getFiles(self):
         filelist = os.listdir(self.home)
         return filelist
@@ -19,6 +22,7 @@ class FileQuery:
         self.exp = re.compile(expr)
 
     def crawl(self, data):
+        # return a list of files filtered by the expression in class
         result = []
         for d in data:
             if self.exp.search(d):
@@ -26,6 +30,7 @@ class FileQuery:
         return result
 
     def fileList(self, data):
+        # remove the file extension of crawl result, accept same data as crawl
         filteredData = self.crawl(data)
         print(filteredData)
         result = map(lambda x: self.exp.sub("", x), filteredData)
@@ -41,13 +46,16 @@ class FileChanger:
         self.orig.changeExpr(old)
         self.target.changeExpr(new)
 
-    def changeList(self, data):
+    def changeList(self, data, missing=True):
         origlist = self.orig.fileList(data)
         newlist = self.target.fileList(data)
-        result = set(origlist).difference(newlist)
+        if missing:
+            result = set(origlist).difference(newlist)
+        else:
+            result = set(origlist).intersection(newlist)
         return result
 
-    def showOld(self,data):
+    def showOld(self, data):
         return self.orig.fileList(data)
 
     def linkFiles(self, fileiter):
