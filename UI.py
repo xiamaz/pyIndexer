@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as tkfile
 import Controller
+import os.path
 
 
 class OutputView(tk.Frame):
@@ -109,11 +110,15 @@ class MainWindow(tk.Frame):
         self.control.pack(side="right", fill="y", anchor="center", expand=True)
         self.output.pack(side="left", fill="both", expand=True)
 
-        self.controller = Controller.Controller()
-
-        # initialize the initial view
-        # let user select working directory
-        self.updateDir()
+        # load config from file config.txt
+        path = self.readDir()
+        if path:
+            self.controller = Controller.Controller(workingdir=path)
+        else:
+            self.controller = Controller.Controller()
+            self.updateDir()
+        expr = self.readExpr()
+        self.controller.changeExpr(expr)
 
     def updateView(self, var="dummy"):
         # get list of files depending on view options
@@ -144,15 +149,45 @@ class MainWindow(tk.Frame):
         self.controller.changeDir(newpath)
         self.controller.crawlDir()
         self.status.showLog("Working directory updated, file list updated")
+        # save dir to config file
+        with open("dir.txt", "w") as config:
+            config.write(newpath)
+
+    def readDir(self):
+        configname = "dir.txt"
+        if os.path.isfile(configname):
+            with open(configname, "r") as configfile:
+                dirline = configfile.read()
+            return dirline
+        else:
+            return 0
+
+    def readExpr(self):
+        configname = "expr.txt"
+        if os.path.isfile(configname):
+            with open(configname) as configfile:
+                ext1 = configfile.readline()  # old
+                ext2 = configfile.readline()  # new
+            return ext1, ext2
+        else:
+            return 0
 
     def fsUpdate(self):
         self.controller.crawlDir()
 
     def changeClick(self):
-        pass
+        self.controller.linkFiles()
+        self.updateView()
+        self.status.showLog("Files linked to new extension")
 
-    def exprChange(self):
-        pass
+    def updateExpr(self):
+        # get changed extensions from entry fields
+        oldstr = self.oldvar
+        newstr = self.newvar
+        with open("expr.txt", "w") as exprfile:
+            exprfile.writeline(oldstr)
+            exprfile.writeline(newstr)
+        self.status.showSuccess("File endings saved to file")
 
     def searchChange(self):
         pass

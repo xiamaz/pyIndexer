@@ -1,4 +1,5 @@
 import Indexer
+import ctypes
 
 # adding functions to be executed on user interaction
 
@@ -9,12 +10,18 @@ class Controller:
         self.crawler = Indexer.FileCrawler(workingdir)
         oldexp = "\\{}$".format(oldname)
         newexp = "\\{}$".format(newname)
+        self.oldname = oldname
+        self.newname = newname
         self.changer = Indexer.FileChanger(oldexp, newexp)
 
         self.crawlDir()
 
     def changeExpr(self, old, new):
-        self.changer.changeExpr(old, new)
+        self.oldname = old
+        self.newname = new
+        oldf = "\\{}$".format(old)
+        newf = "\\{}$".format(new)
+        self.changer.changeExpr(oldf, newf)
 
     def changeDir(self, newdir):
         self.crawler.changePath(newdir)
@@ -34,8 +41,11 @@ class Controller:
         filelist = self.changer.changeList(self.data, missing=True)
         return filelist
 
-    def copyFiles(self):
-        pass
+    def linkFiles(self):
+        symlib = ctypes.windll.LoadLibrary("kernel32.dll")
+        data = self.getOld()
+        for d in data:
+            symlib.CreateSymbolicLinkW(d+self.oldname, d+self.newname, 0)
 
 
 if __name__ == '__main__':
