@@ -1,5 +1,5 @@
 import Indexer
-import ctypes
+import shutil
 
 # adding functions to be executed on user interaction
 
@@ -42,11 +42,21 @@ class Controller:
         return filelist
 
     def linkFiles(self):
-        symlib = ctypes.windll.LoadLibrary("kernel32.dll")
+        path = self.crawler.home
+        print(path)
         data = self.getOld()
         for d in data:
-            symlib.CreateSymbolicLinkW(d+self.oldname, d+self.newname, 0)
+            old = path+'\\'+d+self.oldname
+            print(old)
+            new = path+'\\'+d+self.newname
+            print(new)
+            shutil.copyfile(old, new)
 
 
 if __name__ == '__main__':
     print("Testing the UI Interaction functions")
+    control = Controller("C:\\Users\\admin\\Git\\pyIndexer\\Testfiles")
+    control.crawlDir()
+    control.getOld()
+    control.linkFiles()
+

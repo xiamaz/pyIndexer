@@ -40,7 +40,7 @@ class ControlView(tk.Frame):
         self.updatebutton = tk.Button(self.showlabel, text="Update view",
                                       command=self.parent.updateView)
         self.filebutton = tk.Button(self, text="Update file list",
-                                    command=self.parent.updateDir)
+                                    command=self.parent.dirClick)
 
         # set static content of viewlist
         self.viewlist.insert("end", "Show unlinked")
@@ -115,10 +115,11 @@ class MainWindow(tk.Frame):
         if path:
             self.controller = Controller.Controller(workingdir=path)
         else:
-            self.controller = Controller.Controller()
-            self.updateDir()
+            self.controller = Controller.Controller(self.updateDir())
+        
         expr = self.readExpr()
-        self.controller.changeExpr(expr)
+        if expr:
+            self.controller.changeExpr(expr)
 
     def updateView(self, var="dummy"):
         # get list of files depending on view options
@@ -146,12 +147,16 @@ class MainWindow(tk.Frame):
 
     def updateDir(self):
         newpath = tkfile.askdirectory()
-        self.controller.changeDir(newpath)
-        self.controller.crawlDir()
         self.status.showLog("Working directory updated, file list updated")
         # save dir to config file
         with open("dir.txt", "w") as config:
             config.write(newpath)
+        return newpath
+
+    def dirClick(self):
+        self.controller.changeDir(self.updateDir())
+        self.fsUpdate()
+        self.updateView()
 
     def readDir(self):
         configname = "dir.txt"
