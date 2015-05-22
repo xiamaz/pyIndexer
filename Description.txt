@@ -7,3 +7,13 @@ The associated file endings are:
 only copy selected file -
   copy path
   paste path (default Desktop ups fold)
+User Interface
+  main Window
+    This view presents the day to day tasks to be completed by using the program, including copying selected file to target path and showing all the files in the directory by time of creation.
+  configurations window
+    This window presents the directory and file ending settings. They are to be used cautiously. Always include a default reset
+    Currently available configuration:
+      Working directory - directory in which to search for files
+      Target directory - direcotry in which target file will be placed
+      Match File Extension - extension to be searched for
+      Target file - name of target file

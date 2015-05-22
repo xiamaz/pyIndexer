@@ -22,54 +22,73 @@ class OutputView(tk.Frame):
             self.text.insert("end", d)
 
 
-class ControlView(tk.Frame):
+class ViewTable(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
-        self.oldlabel = tk.Label(self, text="Old file extension")
-        self.newlabel = tk.Label(self, text="New file extension")
-        self.oldentry = tk.Entry(self, textvariable=self.parent.oldvar)
-        self.newentry = tk.Entry(self, textvariable=self.parent.newvar)
+        self.tree = None
 
-        self.changebutton = tk.Button(self, text="Change file extensions",
-                                      command=self.parent.changeClick)
 
-        self.showlabel = tk.LabelFrame(self, text="Output options")
-        self.viewlist = tk.Listbox(self.showlabel, selectmode="single")
-        self.updatebutton = tk.Button(self.showlabel, text="Update view",
-                                      command=self.parent.updateView)
-        self.filebutton = tk.Button(self, text="Update file list",
-                                    command=self.parent.dirClick)
+class ControlView(tk.Toplevel):
+    # create configurations dialog with following layout
+    # bottom are cancel and confirm buttons
+    def __init__(self, parent, *args, **kwargs):
+        tk.Toplevel.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
 
-        # set static content of viewlist
-        self.viewlist.insert("end", "Show unlinked")
-        self.viewlist.insert("end", "Show linked")
-        self.viewlist.insert("end", "Show all")
-        # bind listbox changes to viewlist update
-        self.viewlist.bind("<<ListboxSelect>>", self.parent.updateView)
+        # variables
+        self.cdir = tk.StringVar()
+        self.tdir = tk.StringVar()
 
-        # set layout using grid layout to realize multiple rows of controls
-        self.oldlabel.grid(row=0)
-        self.oldentry.grid(row=1)
-        self.newlabel.grid(row=2)
-        self.newentry.grid(row=3)
-        self.changebutton.grid(row=4)
+        self.bottom = tk.Frame(self)
+        self.top = tk.Frame(self)
 
-        self.showlabel.grid(row=5)
+        self.cancelButton = tk.Button(self.bottom, text="Cancel")
+        self.confirmButton = tk.Button(self.bootom, text="Confirm")
 
-        # implement as listbox instead
-        self.viewlist.pack(anchor="e", fill="x")
-        self.updatebutton.pack(anchor="e", fill="x")
+        self.cdirButton = tk.Button(self, text="Change Crawl Directory", command=self.changeCrawl)
+        self.tdirButton = tk.Button(self, text="Change Target Direcotry", command=self.changeTarget)
 
-        self.filebutton.grid(row=6)
-        # double entry field for old and new extension name
-        # button to do changes
-        # button to show files with missing new extensions
+        self.cdirLabel = tk.Label(self, textvariable=self.cdir)
+        self.tdirLabel = tk.Label(self, textvariable=self.tdir)
+
+        self.extEdit  = tk.Entry(self)
+        self.targEdit = tk.Entry(self)
+
+        # pack the small widgets in grid in top frame
+        self.cdirButton.grid(column=0, row=0)
+        self.tdirButton.grid(column=0, row=1)
+        self.cdirLabel.grid(column=1, row=0)
+        self.tdirLabel.grid(column=1, row=1)
+        self.extEdit.grid(column=0, row=2, columnspan=2)
+        self.targEdit.grid(column=0, row=3, columnspan=2)
+
+        self.cancelButton.pack(side="left")
+        self.confirmButton.pack(side="left")
+
+        # pack the big frames into the window
+        self.top.pack(side="left", fill="both", expand=True)
+        self.bottom.pack(side="bottom", fill="x", expand =True)
+
+
+    def changeCrawl(self):
+        self.cdir = tkfile.askdirectory()
+
+    def changeTarget(self):
+        self.tdir =tkfile.askdirectory()
+
+    def confirmChanges(self):
+        self.parent.control.changeCrawlDir(self.cdir)
+        self.parent.control.changeTargetDir(self.tdir)
+        self.parent.control.changeExtension(self.extEdit.get())
+        self.parent.control.changeTarget(self.targEdit.get())
+        self.destroy()
+
 
 
 class StatusBar(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, * args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
@@ -116,7 +135,7 @@ class MainWindow(tk.Frame):
             self.controller = Controller.Controller(workingdir=path)
         else:
             self.controller = Controller.Controller(self.updateDir())
-        
+
         expr = self.readExpr()
         if expr:
             self.controller.changeExpr(expr)
@@ -145,7 +164,7 @@ class MainWindow(tk.Frame):
             self.output.populateList(result)
             self.status.showLog("Displaying linked files")
 
-    def updateDir(self):
+    def up dateDir(self):
         newpath = tkfile.askdirectory()
         self.status.showLog("Working directory updated, file list updated")
         # save dir to config file

@@ -1,62 +1,40 @@
 import Indexer
-import shutil
+import Configuration
+import os
 
-# adding functions to be executed on user interaction
+# the controller implements the configuration on the indexer operations, all
+# user interface commands pass through the controller
 
 
 class Controller:
-    def __init__(self, workingdir="/home/max/Gits/pyIndexer/Testfiles",
-                 oldname=".test", newname=".new"):
-        self.crawler = Indexer.FileCrawler(workingdir)
-        oldexp = "\\{}$".format(oldname)
-        newexp = "\\{}$".format(newname)
-        self.oldname = oldname
-        self.newname = newname
-        self.changer = Indexer.FileChanger(oldexp, newexp)
+    def __init__(self):
+        # initialize the Controller object, first we would need to initialize
+        # the configuration system
+        # the configuration is saved in the appdata system
+        self.configuration = Configuration.Configuration()
+        self.crawler = Indexer.FileCrawler(self.configuration.getConfig("crawldir"),
+                                           self.configuration.getConfig("extension"))
 
-        self.crawlDir()
+    def linkFile(self, selectedFile):
+        origPath = self.configuration.getConfig("crawldir") + \
+            os.sep + selectedFile
+        targetPath = self.configuration.getConfig("targetdir") + os.sep + self.configuration.getConfig("targetfile")
+        self.crawler.linkTo(origPath, targetPath)
 
-    def changeExpr(self, old, new):
-        self.oldname = old
-        self.newname = new
-        oldf = "\\{}$".format(old)
-        newf = "\\{}$".format(new)
-        self.changer.changeExpr(oldf, newf)
+    def updateList(self):
+        self.crawler.update()
 
-    def changeDir(self, newdir):
-        self.crawler.changePath(newdir)
+    def changeCrawlDir(self, newpath):
+        self.configuration.changeConfig("crawldir", newpath)
 
-    def crawlDir(self):
-        self.data = self.crawler.getFiles()
+    def changeTargetDir(self, newpath):
+        self.configuration.changeConfig("targetdir", newpath)
 
-    def getAll(self):
-        filelist = self.changer.showOld(self.data)
-        return filelist
+    def changeExtension(self, newext):
+        self.configuration.changeConfig("extension", newext)
 
-    def getNew(self):
-        filelist = self.changer.changeList(self.data, missing=False)
-        return filelist
-
-    def getOld(self):
-        filelist = self.changer.changeList(self.data, missing=True)
-        return filelist
-
-    def linkFiles(self):
-        path = self.crawler.home
-        print(path)
-        data = self.getOld()
-        for d in data:
-            old = path+'\\'+d+self.oldname
-            print(old)
-            new = path+'\\'+d+self.newname
-            print(new)
-            shutil.copyfile(old, new)
-
+    def changeTarget(self, newtarg):
+        self.configuration.changeConfig("targetfile", newext)
 
 if __name__ == '__main__':
     print("Testing the UI Interaction functions")
-    control = Controller("C:\\Users\\admin\\Git\\pyIndexer\\Testfiles")
-    control.crawlDir()
-    control.getOld()
-    control.linkFiles()
-
