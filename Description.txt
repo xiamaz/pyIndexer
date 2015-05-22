@@ -1,0 +1,9 @@
+pyIndexer
+Program Function
+Scan folder for files with specific file ending. Copy these files to include the required file ending without changing any other file content.
+The associated file endings are:
+  original .neworders
+  target upsship.csv 
+only copy selected file -
+  copy path
+  paste path (default Desktop ups fold)
