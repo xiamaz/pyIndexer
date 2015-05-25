@@ -1,17 +1,19 @@
 # configuration class containing the values for crawl directory, target
 # directory. File ending to be searched and target file name
 import os
+import appdirs
 
 
 class Configuration:
-    def __init__(self, appname='FixLinker'):
+    def __init__(self, appname='UPSLinker', appauthor='Alcasa'):
         self.FILE = "pyIndexer.conf"
         self.HOME = os.path.expanduser("~")
-        self.APPDATA = os.getenv('APPDATA')
+        self.APPDATA = appdirs.user_data_dir(appname, appauthor)
         self.conf = {}
-        self.path = self.APPDATA + os.sep + appname
-        if not os.path.exists(self.path + os.sep + self.FILE):
-            os.makedirs(self.path)
+        self.defaultConf = {}
+        if not os.path.exists(self.APPDATA):
+            os.makedirs(self.APPDATA)
+        if not os.path.exists(self.APPDATA + os.sep + self.FILE):
             self.initialSetup()
             self.writeConfFile()
         else:
@@ -44,11 +46,11 @@ class Configuration:
 
     def writeConfFile(self):
         confText = self.parseConfig()
-        with open(self.path + os.sep + self.FILE) as cFile:
+        with open(self.APPDATA + os.sep + self.FILE, 'w') as cFile:
             cFile.write(confText)
 
     def readConfFile(self):
-        with open(self.path + os.sep + self.FILE) as cFile:
+        with open(self.APPDATA + os.sep + self.FILE, 'r') as cFile:
             for cLines in cFile:
                 self.addConfLine(cLines)
 
@@ -56,12 +58,19 @@ class Configuration:
         # these are the default settings
         # the default crawl directory is the user home folder
         home = os.path.expanduser("~")
-        self.configuration.addConfig("crawldir", home, home)
+        crawl = home + os.sep + 'Testing'
+        self.addConfig("crawldir", crawl, crawl)
         # the default target direcotry is the desktop dir under
         target = home + os.sep + 'Desktop' + os.sep + 'ups fold'
-        self.configuration.addConfig("targetdir", target, target)
+        self.addConfig("targetdir", target, target)
         # the default file ending is .neworders
-        self.configuration.addConfig("extension", ".neworders", ".neworders")
+        self.addConfig("extension", ".neworders", ".neworders")
         # the default target is upslink.csv
         targetfile = "upsship.csv"
-        self.configuration.addConfig("targetfile", targetfile, targetfile)
+        self.addConfig("targetfile", targetfile, targetfile)
+
+
+if __name__ == '__main__':
+    print("Testing the configurator")
+    conf = Configuration()
+    print(conf.APPDATA)

@@ -12,17 +12,21 @@ class Controller:
         # the configuration system
         # the configuration is saved in the appdata system
         self.configuration = Configuration.Configuration()
-        self.crawler = Indexer.FileCrawler(self.configuration.getConfig("crawldir"),
-                                           self.configuration.getConfig("extension"))
+        self.crawler = Indexer.FileCrawler()
+        self.sep = os.sep
 
     def linkFile(self, selectedFile):
         origPath = self.configuration.getConfig("crawldir") + \
             os.sep + selectedFile
-        targetPath = self.configuration.getConfig("targetdir") + os.sep + self.configuration.getConfig("targetfile")
+
+        if not os.path.exists(self.getTargetDir()):
+            print("{} does not exist".format(self.getTargetDir()))
+            os.makedirs(self.getTargetDir())
+        targetPath = self.getTargetDir() + os.sep + self.getTargetFile()
         self.crawler.linkTo(origPath, targetPath)
 
     def updateList(self):
-        self.crawler.update()
+        self.crawler.update(self.getCrawl(), self.getExt())
 
     def changeCrawlDir(self, newpath):
         self.configuration.changeConfig("crawldir", newpath)
@@ -36,5 +40,34 @@ class Controller:
     def changeTarget(self, newtarg):
         self.configuration.changeConfig("targetfile", newext)
 
+    def saveConfig(self):
+        self.configuration.writeConfFile()
+
+    # get functions
+    def getFiltered(self):
+        self.updateList()
+        return self.crawler.getFiltered()
+
+    def getCrawl(self):
+        return self.configuration.getConfig("crawldir")
+
+    def getExt(self):
+        return self.configuration.getConfig("extension")
+
+    def getTargetDir(self):
+        return self.configuration.getConfig("targetdir")
+
+    def getTargetFile(self):
+        return self.configuration.getConfig("targetfile")
+
+    def getTargetPath(self):
+        return self.configuration.getConfig("targetdir") + self.sep + self.configuration.getConfig("targetfile")
+
+
 if __name__ == '__main__':
     print("Testing the UI Interaction functions")
+    control = Controller()
+    control.configuration.initialSetup() 
+    print(control.getFiltered())
+    filtered = control.getFiltered()
+    control.linkFile(filtered[0][0])
