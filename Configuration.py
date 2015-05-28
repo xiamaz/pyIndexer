@@ -33,16 +33,21 @@ class Configuration:
     def parseConfig(self):
         confText = ""
         for key in self.conf.keys():
-            confText += "{}:".format(key)
-            confText += "{}:".format(self.conf[key])
-            confText += "{}\r\n".format(self.defaultConf[key])
+            confText += "{}:".format(key.strip())
+            confText += "{}:".format(self.conf[key].strip())
+            confText += "{}\r\n".format(self.defaultConf[key].strip())
         return confText
 
     def addConfLine(self, confLine):
         # read by lines from configuration file
         # 0 - config name; 1 - current value; 2 - default value
+        print(confLine)
         cStrs = confLine.split(":", 2)
-        self.addConfig(cStrs[0], cStrs[1], cStrs[2])
+        print(cStrs)
+        if len(cStrs) == 3:
+            self.addConfig(cStrs[0], cStrs[1], cStrs[2])
+        else:
+            print("Invalid config line, ignore data")
 
     def writeConfFile(self):
         confText = self.parseConfig()

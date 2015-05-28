@@ -38,7 +38,7 @@ class Controller:
         self.configuration.changeConfig("extension", newext)
 
     def changeTarget(self, newtarg):
-        self.configuration.changeConfig("targetfile", newext)
+        self.configuration.changeConfig("targetfile", newtarg)
 
     def saveConfig(self):
         self.configuration.writeConfFile()
@@ -67,7 +67,7 @@ class Controller:
 if __name__ == '__main__':
     print("Testing the UI Interaction functions")
     control = Controller()
-    control.configuration.initialSetup() 
+    control.configuration.initialSetup()
     print(control.getFiltered())
     filtered = control.getFiltered()
     control.linkFile(filtered[0][0])

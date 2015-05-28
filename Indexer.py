@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import time
 
 
 class FileCrawler:
@@ -19,7 +20,12 @@ class FileCrawler:
         expr = re.compile("\\{}$".format(fileFormat))
         for f in self.files:
             if expr.search(f):
-                t = (f, os.path.getmtime(path + os.sep + f))
+                secs = os.path.getmtime(path + os.sep + f)
+                print(secs)
+                ftime = time.strftime("%a %b %d %H:%M:%S %Y",
+                                      time.gmtime(secs))
+                print(ftime)
+                t = (f, ftime)
                 self.filtered.append(t)
 
     def getFiltered(self):
