@@ -234,6 +234,7 @@ def main():
     root = MainWindow()
     root.minsize(600, 400)
     root.wm_title("UPS Linker")
+    root.iconbitmap("link_icon.ico")
     root.configure(background='white')
     menubar = MenuBar(root)
     root.config(menu=menubar)
