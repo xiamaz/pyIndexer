@@ -13,6 +13,7 @@ class FileCrawler:
         self.filterFiles(path, fileFormat)
 
     def getFiles(self, path):
+        print(path)
         self.files = os.listdir(path)
 
     def filterFiles(self, path, fileFormat):
@@ -21,11 +22,9 @@ class FileCrawler:
         for f in self.files:
             if expr.search(f):
                 secs = os.path.getmtime(path + os.sep + f)
-                print(secs)
                 ftime = time.strftime("%a %b %d %H:%M:%S %Y",
                                       time.gmtime(secs))
-                print(ftime)
-                t = (f, ftime)
+                t = [f, ftime, secs]
                 self.filtered.append(t)
 
     def getFiltered(self):

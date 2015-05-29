@@ -9,6 +9,7 @@ class Configuration:
         self.FILE = "pyIndexer.conf"
         self.HOME = os.path.expanduser("~")
         self.APPDATA = appdirs.user_data_dir(appname, appauthor)
+        self.SEPERATOR = ";"
         self.conf = {}
         self.defaultConf = {}
         if not os.path.exists(self.APPDATA):
@@ -33,17 +34,15 @@ class Configuration:
     def parseConfig(self):
         confText = ""
         for key in self.conf.keys():
-            confText += "{}:".format(key.strip())
-            confText += "{}:".format(self.conf[key].strip())
+            confText += "{0}{1}".format(key.strip(), self.SEPERATOR)
+            confText += "{0}{1}".format(self.conf[key].strip(), self.SEPERATOR)
             confText += "{}\r\n".format(self.defaultConf[key].strip())
         return confText
 
     def addConfLine(self, confLine):
         # read by lines from configuration file
         # 0 - config name; 1 - current value; 2 - default value
-        print(confLine)
-        cStrs = confLine.split(":", 2)
-        print(cStrs)
+        cStrs = confLine.split(self.SEPERATOR, 2)
         if len(cStrs) == 3:
             self.addConfig(cStrs[0], cStrs[1], cStrs[2])
         else:

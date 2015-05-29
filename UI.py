@@ -11,32 +11,46 @@ class OutputView(ttk.Frame):
         self.parent = parent
 
         self.view = ViewTable(self)
+        ysb = ttk.Scrollbar(self, orient='vertical', command=self.view.yview)
+        xsb = ttk.Scrollbar(self, orient='horizontal', command=self.view.xview)
+        self.view.configure(yscroll=ysb.set, xscroll=xsb.set)
+
+        style = ttk.Style()
+
         self.linkButton = ttk.Button(self, text="Create UPSLink",
                                      command=self.parent.linkFile)
-        self.updateButton = ttk.Button(self, text="Refresh view",
-                                       command=self.getList)
+        #  self.updateButton = ttk.Button(self, text="Refresh view",
+                                     #  command=self.getList)
 
-        self.view.pack(side="top", fill="both", expand=True)
-        self.linkButton.pack(side="bottom", fill="x", expand=True)
-        self.updateButton.pack(side="bottom", fill="x", expand=True)
+        self.view.grid(row=0, column=0, sticky="nswe")
+        ysb.grid(row=0, column=1, sticky="ns")
+        xsb.grid(row=1, column=0, sticky="we")
+        self.linkButton.grid(row=2, column=0, columnspan=2,
+                             rowspan=1, sticky="nswe")
+
+        self.columnconfigure(0, weight=8)
+        self.rowconfigure(0, weight=8)
+        self.rowconfigure(2, weight=1)
+       #   self.updateButton.pack(side="bottom", fill="x")
 
     def getList(self):
         self.view.delete(*self.view.get_children())
-        flist = self.parent.getFiles()
-        for f in flist:
+        rlist = self.parent.getFiles()
+        self.flist = []
+        for f in rlist:
             # each tuple contains name and modification date of file
-            print(f[1])
-            self.view.insert('', 'end', text=f[0], values=(f[1],))
+            f.append(self.view.insert('', 'end', text=f[0], values=(f[1],)))
+            self.flist.append(f)
 
         self.parent.status.showLog("Relevant files loaded")
 
     def sortItems(self, col='modified', reverse=True):
-        l = [(time.mktime(time.strptime(self.view.set(v, col))),
-              v) for v in self.view.get_children('')]
-        l.sort(reverse=reverse)
-        print(l)
-        for index, (val, v) in enumerate(l):
-            self.view.move(v, '', index)
+        # l = [(time.mktime(time.strptime(self.view.set(v, col))),
+        #       v) for v in self.view.get_children('')]
+
+        self.flist.sort(reverse=reverse, key=lambda x: x[2])
+        for index, f in enumerate(self.flist):
+            self.view.move(f[3], '', index)
 
         self.view.heading(col, command=lambda:
                           self.sortItems(col, not reverse))
@@ -44,6 +58,7 @@ class OutputView(ttk.Frame):
 
     def getSelected(self):
         text = self.view.item(self.view.selection(), 'text')
+
         return text
 
 
@@ -53,7 +68,10 @@ class ViewTable(ttk.Treeview):
                          *args, **kwargs)
         self.parent = parent
 
+
         self.column('modified')
+
+        self.heading('#0', text='Update view', command=self.parent.getList)
 
         self.heading('modified', text='Last modified',
                      command=self.parent.sortItems)
@@ -67,6 +85,10 @@ class ControlView(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         tk.Toplevel.__init__(self, parent, *args, **kwargs)
         self.parent = parent
+
+        self.resizable(0,0)
+        self.wm_title("UPS Linker Settings")
+        self.focus_set()
 
         # variables
         self.cdir = tk.StringVar(self, self.parent.controller.getCrawl())
@@ -92,21 +114,25 @@ class ControlView(tk.Toplevel):
 
         self.extEdit = ttk.Entry(self.top, textvariable=self.ext)
         self.targEdit = ttk.Entry(self.top, textvariable=self.tfile)
+        self.extLabel = ttk.Label(self.top, text="File Extension")
+        self.targLabel = ttk.Label(self.top, text="Target File Name")
 
         # pack the small widgets in grid in top frame
-        self.cdirButton.grid(column=0, row=0)
-        self.tdirButton.grid(column=0, row=1)
-        self.cdirLabel.grid(column=1, row=0)
-        self.tdirLabel.grid(column=1, row=1)
-        self.extEdit.grid(column=0, row=2, columnspan=2)
-        self.targEdit.grid(column=0, row=3, columnspan=2)
+        self.cdirButton.grid(column=0, row=0, sticky="we")
+        self.tdirButton.grid(column=0, row=1, sticky="we")
+        self.cdirLabel.grid(column=1, row=0, sticky="we")
+        self.tdirLabel.grid(column=1, row=1, sticky="we")
+        self.extLabel.grid(column=0, row=2, sticky="we", pady=5)
+        self.targLabel.grid(column=0, row=3, sticky="we")
+        self.extEdit.grid(column=1, row=2, sticky="we")
+        self.targEdit.grid(column=1, row=3, sticky="we")
 
         self.cancelButton.pack(side="left")
-        self.confirmButton.pack(side="left")
+        self.confirmButton.pack(side="right")
 
         # pack the big frames into the window
-        self.top.pack(side="left", fill="both", expand=True)
-        self.bottom.pack(side="bottom", fill="x", expand=True)
+        self.top.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+        self.bottom.pack(side="bottom", fill="x", expand=True, padx=10, pady=10)
 
     def changeCrawl(self):
         self.cdir.set(tkfile.askdirectory(initialdir=self.cdir.get()))
@@ -131,25 +157,31 @@ class StatusBar(ttk.Frame):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
+        self.message = tk.StringVar()
+
+        style = ttk.Style()
+        style.configure("Black.TLabel", foreground="black")
+        style.configure("Green.TLabel", foreground="green")
+        style.configure("Red.TLabel", foreground="red")
+
+        self.statuslabel = ttk.Label(self, textvariable=self.message)
         self.showLog("Welcome to the file linker.")
 
-        self.statuslabel = ttk.Label(self, text=self.message)
-
-        self.statuslabel.pack(side="left", fill="x")
+        self.statuslabel.pack(side="left", fill="x", pady=5, padx=5)
 
         # statusbar showing output from last operation
         # colored for green - all fine, red - error, black - normal status
     def showLog(self, text):
-        self.message = text
-        self.color = "black"
+        self.message.set(text)
+        self.statuslabel.configure(style="Black.TLabel")
 
     def showSuccess(self, text):
-        self.message = text
-        self.color = "green"
+        self.message.set(text)
+        self.statuslabel.configure(style="Green.TLabel")
 
     def showFailure(self, text):
-        self.message = text
-        self.color = "red"
+        self.message.set(text)
+        self.statuslabel.configure(style="Red.TLabel")
 
 
 class MenuBar(tk.Menu):
@@ -157,7 +189,7 @@ class MenuBar(tk.Menu):
         tk.Menu.__init__(self, parent, *args, **kwargs)
         self.parent = parent
         self.add_command(label='Configuration', command=self.activateConfig)
-        self.add_command(label='Quit', command=self.quitWindow)
+        #self.add_command(label='Quit', command=self.quitWindow)
 
     def activateConfig(self):
         ControlView(self.parent)
@@ -170,8 +202,11 @@ class MainWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        style = ttk.Style()
+        style.configure("Statusbar.TFrame", relief="groove")
+
         self.output = OutputView(self)
-        self.status = StatusBar(self)
+        self.status = StatusBar(self, style="Statusbar.TFrame")
 
         self.status.pack(side="bottom", fill="x")
         self.output.pack(side="left", fill="both", expand=True)
@@ -188,7 +223,9 @@ class MainWindow(tk.Tk):
 
     def linkFile(self):
         selection = self.output.getSelected()
-        print(selection)
+        if selection == "":
+            self.status.showFailure("Please select a file to link")
+            return
         self.controller.linkFile(selection)
         self.status.showSuccess("File linked successfully")
 
@@ -196,6 +233,7 @@ class MainWindow(tk.Tk):
 def main():
     root = MainWindow()
     root.minsize(600, 400)
+    root.wm_title("UPS Linker")
     root.configure(background='white')
     menubar = MenuBar(root)
     root.config(menu=menubar)
