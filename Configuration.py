@@ -1,24 +1,29 @@
 # configuration class containing the values for crawl directory, target
 # directory. File ending to be searched and target file name
 import os
+import sys
 import appdirs
 
 
 class Configuration:
-    def __init__(self, appname='UPSLinker', appauthor='Alcasa'):
+    def __init__(self, crawl, appname='UPSLinker', appauthor='Alcasa'):
         self.FILE = "pyIndexer.conf"
         self.HOME = os.path.expanduser("~")
         self.APPDATA = appdirs.user_data_dir(appname, appauthor)
         self.SEPERATOR = ";"
+        self.CONFVERSION = "1.1"
         self.conf = {}
         self.defaultConf = {}
         if not os.path.exists(self.APPDATA):
             os.makedirs(self.APPDATA)
         if not os.path.exists(self.APPDATA + os.sep + self.FILE):
-            self.initialSetup()
-            self.writeConfFile()
+            return 1
+            # self.initialSetup()
+            # self.writeConfFile()
         else:
-            self.readConfFile()
+            if self.readConfFile():
+                return 1
+        return 0
 
     def addConfig(self, name, value, default):
         self.conf[name] = value
@@ -48,21 +53,39 @@ class Configuration:
         else:
             print("Invalid config line, ignore data")
 
+        return 0
+
     def writeConfFile(self):
         confText = self.parseConfig()
+        versionText = "version;{}\r\n".format(self.CONFVERSION)
         with open(self.APPDATA + os.sep + self.FILE, 'w') as cFile:
-            cFile.write(confText)
+            cFile.write(versionText + confText)
 
     def readConfFile(self):
         with open(self.APPDATA + os.sep + self.FILE, 'r') as cFile:
-            for cLines in cFile:
+            for i, cLines in enumerate(cFile):
+                if i == 0:
+                    if "version" not in cLines:
+                        oldConfig = 1
+                        break
+                    else:
+                        vText, vValue = cLines.split(";")
+                        if vValue != self.CONFVERSION:
+                            oldConfig = 1
+                            break
+                        else:
+                            oldConfig = 0
                 self.addConfLine(cLines)
 
-    def initialSetup(self):
+        if oldConfig:
+            os.remove(self.APPDATA + os.sep + self.FILE)
+            return 1
+
+    def initialSetup(self, crawl):
         # these are the default settings
         # the default crawl directory is the user home folder
         home = os.path.expanduser("~")
-        crawl = home + os.sep + 'Testing'
+        # crawl = home + os.sep + 'Testing'
         self.addConfig("crawldir", crawl, crawl)
         # the default target direcotry is the desktop dir under
         target = home + os.sep + 'Desktop' + os.sep + 'ups fold'

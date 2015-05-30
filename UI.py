@@ -212,7 +212,9 @@ class MainWindow(tk.Tk):
         self.output.pack(side="left", fill="both", expand=True)
 
         # add object to control the mechanic
-        self.controller = Controller.Controller()
+        if self.controller = Controller.Controller(crawl=""):
+            crawlpath = tkFile.askdirectory()
+            self.controller = Controller.Controller(crawl=crawlpath):
 
         # load initial file data
         self.output.getList()
