@@ -7,11 +7,11 @@ import os
 
 
 class Controller:
-    def __init__(self, crawl):
+    def __init__(self):
         # initialize the Controller object, first we would need to initialize
         # the configuration system
         # the configuration is saved in the appdata system
-        self.configuration = Configuration.Configuration(crawl=crawl)
+        self.configuration = Configuration.Configuration()
         self.crawler = Indexer.FileCrawler()
         self.sep = os.sep
 

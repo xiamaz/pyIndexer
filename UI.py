@@ -213,7 +213,7 @@ class MainWindow(tk.Tk):
         self.output.pack(side="left", fill="both", expand=True)
 
         # add object to control the mechanic
-<<<<<<< HEAD
+
         self.controller = Controller.Controller()
         status = self.controller.startConf()
         print(status)
@@ -221,11 +221,6 @@ class MainWindow(tk.Tk):
             print("Asking for directory")
             crawlpath = tkfile.askdirectory()
             self.controller.initConf(crawlpath)
-=======
-        if self.controller = Controller.Controller(crawl=""):
-            crawlpath = tkFile.askdirectory()
-            self.controller = Controller.Controller(crawl=crawlpath):
->>>>>>> 63c19e9fa4f5d78b7e21b2ef9acb6097705f95d3
 
         # load initial file data
         self.output.getList()

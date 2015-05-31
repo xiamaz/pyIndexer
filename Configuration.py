@@ -6,7 +6,7 @@ import appdirs
 
 
 class Configuration:
-    def __init__(self, crawl, appname='UPSLinker', appauthor='Alcasa'):
+    def __init__(self, appname='UPSLinker', appauthor='Alcasa'):
         self.FILE = "pyIndexer.conf"
         self.HOME = os.path.expanduser("~")
         self.APPDATA = appdirs.user_data_dir(appname, appauthor)
@@ -19,22 +19,12 @@ class Configuration:
         if not os.path.exists(self.APPDATA):
             os.makedirs(self.APPDATA)
         if not os.path.exists(self.APPDATA + os.sep + self.FILE):
-<<<<<<< HEAD
             print("Configuration file does not exist")
             return 1
             # self.initialSetup()
             # self.writeConfFile()
         status = self.readConfFile()
         return status
-=======
-            return 1
-            # self.initialSetup()
-            # self.writeConfFile()
-        else:
-            if self.readConfFile():
-                return 1
-        return 0
->>>>>>> 63c19e9fa4f5d78b7e21b2ef9acb6097705f95d3
 
     def addConfig(self, name, value, default):
         self.conf[name] = value
@@ -77,7 +67,6 @@ class Configuration:
         with open(self.APPDATA + os.sep + self.FILE, 'r') as cFile:
             for i, cLines in enumerate(cFile):
                 if i == 0:
-<<<<<<< HEAD
                     print(cLines)
                     if "version" not in cLines:
                         print("No version statement in file")
@@ -92,28 +81,14 @@ class Configuration:
                             break
                         else:
                             print("Conf file version ok")
-=======
-                    if "version" not in cLines:
-                        oldConfig = 1
-                        break
-                    else:
-                        vText, vValue = cLines.split(";")
-                        if vValue != self.CONFVERSION:
-                            oldConfig = 1
-                            break
-                        else:
->>>>>>> 63c19e9fa4f5d78b7e21b2ef9acb6097705f95d3
                             oldConfig = 0
                 self.addConfLine(cLines)
 
         if oldConfig:
             os.remove(self.APPDATA + os.sep + self.FILE)
             return 1
-<<<<<<< HEAD
         else:
             return 0
-=======
->>>>>>> 63c19e9fa4f5d78b7e21b2ef9acb6097705f95d3
 
     def initialSetup(self, crawl):
         # these are the default settings
