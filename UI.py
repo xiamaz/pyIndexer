@@ -146,6 +146,7 @@ class ControlView(tk.Toplevel):
         self.parent.controller.changeExtension(self.extEdit.get())
         self.parent.controller.changeTarget(self.targEdit.get())
         self.parent.controller.saveConfig()
+        self.parent.getFiles()
         self.destroy()
 
     def cancel(self):
@@ -213,13 +214,25 @@ class MainWindow(tk.Tk):
 
         # add object to control the mechanic
         self.controller = Controller.Controller()
+        status = self.controller.startConf()
+        print(status)
+        if status == 1:
+            print("Asking for directory")
+            crawlpath = tkfile.askdirectory()
+            self.controller.initConf(crawlpath)
 
         # load initial file data
         self.output.getList()
 
     # controller functions
     def getFiles(self):
-        return self.controller.getFiltered()
+        try:
+            return self.controller.getFiltered()
+        except FileNotFoundError:
+            print("Filepath not existant")
+            path = tkfile.askdirectory()
+            self.controller.initConf(path)
+            return self.getFiles()
 
     def linkFile(self):
         selection = self.output.getSelected()

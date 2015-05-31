@@ -15,6 +15,15 @@ class Controller:
         self.crawler = Indexer.FileCrawler()
         self.sep = os.sep
 
+    def startConf(self):
+        print("Start configuration process")
+        status = self.configuration.startConf()
+        return status
+
+    def initConf(self, crawl):
+        self.configuration.initialSetup(crawl)
+        self.configuration.writeConfFile()
+
     def linkFile(self, selectedFile):
         origPath = self.configuration.getConfig("crawldir") + \
             os.sep + selectedFile
