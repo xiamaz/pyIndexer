@@ -71,9 +71,9 @@ class ViewTable(ttk.Treeview):
 
         self.column('modified')
 
-        self.heading('#0', text='Update view', command=self.parent.getList)
+        self.heading('#0', text='Refresh', command=self.parent.getList)
 
-        self.heading('modified', text='Last modified',
+        self.heading('modified', text='File creation date',
                      command=self.parent.sortItems)
 
         self.pack(side="top", fill="both", expand=True)
@@ -104,7 +104,7 @@ class ControlView(tk.Toplevel):
         self.confirmButton = ttk.Button(self.bottom, text="Confirm",
                                         command=self.confirm)
 
-        self.cdirButton = ttk.Button(self.top, text="Change Crawl Directory",
+        self.cdirButton = ttk.Button(self.top, text="Change Original Directory",
                                      command=self.changeCrawl)
         self.tdirButton = ttk.Button(self.top, text="Change Target Direcotry",
                                      command=self.changeTarget)
@@ -114,7 +114,7 @@ class ControlView(tk.Toplevel):
 
         self.extEdit = ttk.Entry(self.top, textvariable=self.ext)
         self.targEdit = ttk.Entry(self.top, textvariable=self.tfile)
-        self.extLabel = ttk.Label(self.top, text="File Extension")
+        self.extLabel = ttk.Label(self.top, text="Searched File Extension")
         self.targLabel = ttk.Label(self.top, text="Target File Name")
 
         # pack the small widgets in grid in top frame

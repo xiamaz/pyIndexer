@@ -22,7 +22,7 @@ class FileCrawler:
         for f in self.files:
             if expr.search(f):
                 secs = os.path.getmtime(path + os.sep + f)
-                ftime = time.strftime("%a %b %d %H:%M:%S %Y",
+                ftime = time.strftime("%m/%d/%y %I:%M %p",
                                       time.gmtime(secs))
                 t = [f, ftime, secs]
                 self.filtered.append(t)
