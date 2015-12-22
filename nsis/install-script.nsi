@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "UPS Linker"
-!define PRODUCT_VERSION "1.2"
+!define PRODUCT_VERSION "1.3"
 !define PRODUCT_PUBLISHER "Alcasa"
 !define PRODUCT_WEB_SITE "exel232.ddns.net"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\UI.exe"
