@@ -2,7 +2,6 @@ import tkinter as tk
 import tkinter.filedialog as tkfile
 from tkinter import ttk
 import Controller
-import time
 
 
 class OutputView(ttk.Frame):
@@ -15,7 +14,7 @@ class OutputView(ttk.Frame):
         xsb = ttk.Scrollbar(self, orient='horizontal', command=self.view.xview)
         self.view.configure(yscroll=ysb.set, xscroll=xsb.set)
 
-        style = ttk.Style()
+#        style = ttk.Style()
 
         self.linkButton = ttk.Button(self, text="Create UPSLink",
                                      command=self.parent.linkFile)
@@ -45,9 +44,6 @@ class OutputView(ttk.Frame):
         self.parent.status.showLog("Relevant files loaded")
 
     def sortItems(self, col='modified', reverse=True):
-        # l = [(time.mktime(time.strptime(self.view.set(v, col))),
-        #       v) for v in self.view.get_children('')]
-
         self.flist.sort(reverse=reverse, key=lambda x: x[2])
         for index, f in enumerate(self.flist):
             self.view.move(f[3], '', index)
@@ -184,6 +180,9 @@ class StatusBar(ttk.Frame):
         self.message.set(text)
         self.statuslabel.configure(style="Red.TLabel")
 
+    def clear(self, text):
+        self.message.set(" ")
+        self.statuslabel.configure(style="Black.TLabel")
 
 class MenuBar(tk.Menu):
     def __init__(self, parent, * args, **kwargs):
@@ -212,6 +211,7 @@ class MainWindow(tk.Tk):
         self.status.pack(side="bottom", fill="x")
         self.output.pack(side="left", fill="both", expand=True)
 
+        self.output.view.bind('<1>', self.status.clear)
         # add object to control the mechanic
 
         self.controller = Controller.Controller()
